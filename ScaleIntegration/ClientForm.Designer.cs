@@ -35,6 +35,7 @@
             this.lblServerIpAddress = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblServerResponse = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lstServerResponse
@@ -46,6 +47,7 @@
             this.lstServerResponse.Name = "lstServerResponse";
             this.lstServerResponse.Size = new System.Drawing.Size(297, 69);
             this.lstServerResponse.TabIndex = 0;
+            this.lstServerResponse.TabStop = false;
             // 
             // txtServerIpAddress
             // 
@@ -91,7 +93,7 @@
             this.btnConnect.Location = new System.Drawing.Point(235, 38);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(75, 23);
-            this.btnConnect.TabIndex = 6;
+            this.btnConnect.TabIndex = 2;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
@@ -105,11 +107,21 @@
             this.label1.TabIndex = 7;
             this.label1.Text = "Command";
             // 
+            // lblServerResponse
+            // 
+            this.lblServerResponse.AutoSize = true;
+            this.lblServerResponse.Location = new System.Drawing.Point(16, 118);
+            this.lblServerResponse.Name = "lblServerResponse";
+            this.lblServerResponse.Size = new System.Drawing.Size(89, 13);
+            this.lblServerResponse.TabIndex = 8;
+            this.lblServerResponse.Text = "Server Response";
+            // 
             // frm920Simulation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(322, 215);
+            this.Controls.Add(this.lblServerResponse);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.lblServerIpAddress);
@@ -133,6 +145,7 @@
         private System.Windows.Forms.Label lblServerIpAddress;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblServerResponse;
     }
 }
 

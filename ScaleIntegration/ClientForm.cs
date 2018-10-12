@@ -28,7 +28,6 @@ namespace ScaleIntegration_Client
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _clientSocket.BeginConnect(new IPEndPoint(IPAddress.Parse(txtServerIpAddress.Text), 9171), new AsyncCallback(ConnectCallback), null);
 
-                MessageBox.Show("Connection Established");
             }
             catch (Exception ex)
             {
@@ -69,6 +68,7 @@ namespace ScaleIntegration_Client
                 string text = Encoding.ASCII.GetString(data);
 
                 Console.WriteLine("Server Response: " + text);
+                AppendServerResponse(text);
 
                 
 
@@ -88,6 +88,26 @@ namespace ScaleIntegration_Client
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AppendServerResponse(string text)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                lstServerResponse.Items.Add(text);
+            });
+        }
+
+        private bool isConnected()
+        {
+            if(_clientSocket.Connected)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

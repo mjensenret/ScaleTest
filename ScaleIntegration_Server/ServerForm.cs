@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using Domain.Repositories;
+using System.Globalization;
 
 namespace ScaleIntegration_Server
 {
@@ -18,13 +20,14 @@ namespace ScaleIntegration_Server
     {
         private Socket _serverSocket, _clientSocket;
         private byte[] _buffer;
-
+        private static TransferOrderRepository repo = new TransferOrderRepository();
+        
         public frmServerForm()
         {
-            //string path = @"C:\Users\michaelj\Documents\GitHub\ScaleTest\ScaleIntegration\bin\Debug\ScaleIntegration_Client.exe";
-            //Process.Start(path);
+            
             InitializeComponent();
             StartServer();
+
         }
 
         private void StartServer()
@@ -79,25 +82,96 @@ namespace ScaleIntegration_Server
             string text = Encoding.ASCII.GetString(recBuf);
             Console.WriteLine("Text received: " + text);
 
-            AppendToTextBox(text);
+            AppendToInboundTextBox(text);
 
             byte[] response;
+            int auditNumber;
+            int sequenceNumber;
 
-            if(text.ToLower().Contains("query"))
+            if (text.ToLower().Contains("query"))
             {
                 Console.WriteLine("You are looking for an audit number");
-                response = Encoding.ASCII.GetBytes("F#1=QUERY|Y|" + DateTime.Now.ToLongTimeString());
+                int start = text.IndexOf("|", 0) + 1;
+                int end = text.IndexOf("|", (start));
+                int transferOrderId = Convert.ToInt32(text.Substring(start, end - start));
+
+                if (repo.TransferOrderValid(transferOrderId))
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=QUERY|Y|" + DateTime.Now.ToLongTimeString());
+                }
+                else
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=QUERY|N|" + DateTime.Now.ToLongTimeString());
+                }
 
             }
             else if (text.ToLower().Contains("inbound"))
             {
                 Console.WriteLine("You just sent me an inbound transaction");
-                response = Encoding.ASCII.GetBytes("F#1=INBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                int auditNumberStart = text.IndexOf("|", 0) + 1;
+                int auditNumberEnd = text.IndexOf("|", auditNumberStart);
+                int sequenceNumberStart = text.IndexOf("|", auditNumberEnd) + 1;
+                int sequenceNumberEnd = text.IndexOf("|", sequenceNumberStart);
+                int driverIdStart = text.IndexOf("|", sequenceNumberEnd) + 1;
+                int driverIdEnd = text.IndexOf("|", driverIdStart);
+                int truckNumberStart = text.IndexOf("|", driverIdEnd) + 1;
+                int truckNumberEnd = text.IndexOf("|", truckNumberStart);
+                int trailerNumberStart = text.IndexOf("|", truckNumberEnd) + 1;
+                int trailerNumberEnd = text.IndexOf("|", trailerNumberStart);
+                int weightStart = text.IndexOf("|", trailerNumberEnd) + 1;
+                int weightEnd = text.IndexOf("|", weightStart);
+                int dateStart = text.IndexOf("|", weightEnd) + 1;
+                int dateEnd = text.IndexOf("|", dateStart);
+
+                auditNumber = Convert.ToInt32(text.Substring(auditNumberStart, auditNumberEnd - auditNumberStart));
+                sequenceNumber = Convert.ToInt32(text.Substring(sequenceNumberStart, sequenceNumberEnd - sequenceNumberStart));
+                int driverId = Convert.ToInt32(text.Substring(driverIdStart, driverIdEnd - driverIdStart));
+                int truckNumber = Convert.ToInt32(text.Substring(truckNumberStart, truckNumberEnd - truckNumberStart));
+                int trailerNumber = Convert.ToInt32(text.Substring(trailerNumberStart, trailerNumberEnd - trailerNumberStart));
+                decimal weight = Convert.ToDecimal(text.Substring(weightStart, weightEnd - weightStart));
+                string scaleDateTxt = text.Substring(dateStart, dateEnd - dateStart);
+                DateTime scaleDate = DateTime.ParseExact(scaleDateTxt, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                if (repo.UpdateInboundScaleData(auditNumber, sequenceNumber, driverId, truckNumber, trailerNumber, weight, scaleDate))
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=INBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                }
+                else
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=INBOUND|N|" + DateTime.Now.ToLongTimeString());
+                };
+                
             }
             else if (text.ToLower().Contains("outbound"))
             {
                 Console.WriteLine("We have an outbound transaction");
-                response = Encoding.ASCII.GetBytes("F#1=OUTBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                int auditNumberStart = text.IndexOf("|", 0) + 1;
+                int auditNumberEnd = text.IndexOf("|", auditNumberStart);
+                int sequenceNumberStart = text.IndexOf("|", auditNumberEnd) + 1;
+                int sequenceNumberEnd = text.IndexOf("|", sequenceNumberStart);
+                int loaderStart = text.IndexOf("|", sequenceNumberEnd) + 1;
+                int loaderEnd = text.IndexOf("|", loaderStart);
+                int weightStart = text.IndexOf("|", loaderEnd) + 1;
+                int weightEnd = text.IndexOf("|", weightStart);
+                int dateStart = text.IndexOf("|", weightEnd) + 1;
+                int dateEnd = text.IndexOf("|", dateStart);
+
+                auditNumber = Convert.ToInt32(text.Substring(auditNumberStart, auditNumberEnd - auditNumberStart));
+                sequenceNumber = Convert.ToInt32(text.Substring(sequenceNumberStart, sequenceNumberEnd - sequenceNumberStart));
+                int loaderId = Convert.ToInt32(text.Substring(loaderStart, loaderEnd - loaderStart));
+                decimal weight = Convert.ToDecimal(text.Substring(weightStart, weightEnd - weightStart));
+                string scaleDateTxt = text.Substring(dateStart, dateEnd - dateStart);
+                DateTime scaleDate = DateTime.ParseExact(scaleDateTxt, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                if (repo.UpdateOutboundScaleData(auditNumber, sequenceNumber, loaderId, weight, scaleDate))
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=OUTBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                }
+                else
+                {
+                    response = Encoding.ASCII.GetBytes("F#1=OUTBOUND|N|" + DateTime.Now.ToLongTimeString());
+                }
+
             }
             else if (text.ToLower().Contains("test"))
             {
@@ -111,16 +185,26 @@ namespace ScaleIntegration_Server
             }
 
             current.Send(response);
+            AppendToResponseTextBox(response);
 
             _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
         }
 
-        private void AppendToTextBox(string text)
+        private void AppendToInboundTextBox(string text)
         {
             Invoke((MethodInvoker)delegate
             {
                 lstClientCommand.Items.Add(text);
+            });
+        }
+
+        private void AppendToResponseTextBox(byte[] response)
+        {
+            string responseText = Encoding.ASCII.GetString(response);
+            Invoke((MethodInvoker)delegate
+            {
+                lstServerResponse.Items.Add(responseText);
             });
         }
     }
