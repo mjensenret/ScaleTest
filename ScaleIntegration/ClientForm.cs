@@ -39,7 +39,8 @@ namespace ScaleIntegration_Client
         {
             try
             {
-                byte[] buffer = Encoding.ASCII.GetBytes(txtCommand.Text);
+                //byte[] buffer = Encoding.ASCII.GetBytes(txtCommand.Text);
+                byte[] buffer = Encoding.Default.GetBytes(txtCommand.Text);
                 _clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(SendCallback), _clientSocket);
             }
             catch (SocketException) { } //Server closed

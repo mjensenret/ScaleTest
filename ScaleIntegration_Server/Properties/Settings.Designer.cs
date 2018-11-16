@@ -33,5 +33,32 @@ namespace ScaleIntegration_Server.Properties {
                 return ((string)(this["TRANSLOAD_TRIPConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Logs\\ScaleIntegration")]
+        public string LogPath {
+            get {
+                return ((string)(this["LogPath"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Trace {
+            get {
+                return ((bool)(this["Trace"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int LogDays {
+            get {
+                return ((int)(this["LogDays"]));
+            }
+        }
     }
 }

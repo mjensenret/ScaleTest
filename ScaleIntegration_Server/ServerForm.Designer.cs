@@ -96,7 +96,7 @@
             this.Controls.Add(this.lstServerResponse);
             this.Controls.Add(this.lstClientCommand);
             this.Name = "frmServerForm";
-            this.Text = "Server Form";
+            this.Text = "Scale Integration";
             this.ResumeLayout(false);
             this.PerformLayout();
 

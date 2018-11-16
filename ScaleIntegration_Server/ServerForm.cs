@@ -13,6 +13,8 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using Domain.Repositories;
 using System.Globalization;
+using Logging;
+using ScaleIntegration_Server.Properties;
 
 namespace ScaleIntegration_Server
 {
@@ -30,8 +32,14 @@ namespace ScaleIntegration_Server
 
         }
 
+        public FileLog commLog { get; set; }
+
         private void StartServer()
         {
+            commLog = new FileLog(Settings.Default.CommunicationLog, Settings.Default.LogDays);
+
+            writeToLog("Server starting....");
+
             try
             {
                 _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -43,13 +51,19 @@ namespace ScaleIntegration_Server
             {
                 MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            writeToLog("Server started....");
         }
 
         private void AcceptCallback(IAsyncResult ar)
         {
             try
             {
-                _clientSocket = _serverSocket.EndAccept(ar);                
+
+                _clientSocket = _serverSocket.EndAccept(ar);
+
+                writeToLog("Connection from: " + _clientSocket.RemoteEndPoint.ToString());
+                              
                 _buffer = new byte[_clientSocket.ReceiveBufferSize];
                 _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
@@ -79,8 +93,10 @@ namespace ScaleIntegration_Server
 
             byte[] recBuf = new byte[received];
             Array.Copy(_buffer, recBuf, received);
-            string text = Encoding.ASCII.GetString(recBuf);
+            //string text = Encoding.ASCII.GetString(recBuf);
+            string text = Encoding.Default.GetString(recBuf);
             Console.WriteLine("Text received: " + text);
+            writeToLog("Command received: " + text);
 
             AppendToInboundTextBox(text);
 
@@ -91,23 +107,40 @@ namespace ScaleIntegration_Server
             if (text.ToLower().Contains("query"))
             {
                 Console.WriteLine("You are looking for an audit number");
-                int start = text.IndexOf("|", 0) + 1;
-                int end = text.IndexOf("|", (start));
-                int transferOrderId = Convert.ToInt32(text.Substring(start, end - start));
+                writeToLog("Command was a query");
+                try
+                {
+                    int start = text.IndexOf("|", 0) + 1;
+                    int end = text.IndexOf("|", (start));
+                    int transferOrderId = Convert.ToInt32(text.Substring(start, end - start));
 
-                if (repo.TransferOrderValid(transferOrderId))
-                {
-                    response = Encoding.ASCII.GetBytes("F#1=QUERY|Y|" + DateTime.Now.ToLongTimeString());
+                    writeToLog("TransferOrderId: " + transferOrderId.ToString());
+
+                    if (repo.TransferOrderValid(transferOrderId))
+                    {
+                        response = Encoding.ASCII.GetBytes("F#1=QUERY|Y|" + DateTime.Now.ToLongTimeString());
+                        writeToLog("A valid transfer order was found");
+                    }
+                    else
+                    {
+                        response = Encoding.ASCII.GetBytes("F#1=QUERY|N|" + DateTime.Now.ToLongTimeString());
+                        writeToLog("Invalid transfer order was entered.");
+                    }
                 }
-                else
+                catch (Exception e)
                 {
+                    writeToLog(e.Message);
                     response = Encoding.ASCII.GetBytes("F#1=QUERY|N|" + DateTime.Now.ToLongTimeString());
                 }
+
+
+
 
             }
             else if (text.ToLower().Contains("inbound"))
             {
                 Console.WriteLine("You just sent me an inbound transaction");
+                
                 int auditNumberStart = text.IndexOf("|", 0) + 1;
                 int auditNumberEnd = text.IndexOf("|", auditNumberStart);
                 int sequenceNumberStart = text.IndexOf("|", auditNumberEnd) + 1;
@@ -123,6 +156,7 @@ namespace ScaleIntegration_Server
                 int dateStart = text.IndexOf("|", weightEnd) + 1;
                 int dateEnd = text.IndexOf("|", dateStart);
 
+
                 auditNumber = Convert.ToInt32(text.Substring(auditNumberStart, auditNumberEnd - auditNumberStart));
                 sequenceNumber = Convert.ToInt32(text.Substring(sequenceNumberStart, sequenceNumberEnd - sequenceNumberStart));
                 int driverId = Convert.ToInt32(text.Substring(driverIdStart, driverIdEnd - driverIdStart));
@@ -132,13 +166,17 @@ namespace ScaleIntegration_Server
                 string scaleDateTxt = text.Substring(dateStart, dateEnd - dateStart);
                 DateTime scaleDate = DateTime.ParseExact(scaleDateTxt, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
 
+                writeToLog("Inbound query received for audit number: " + auditNumber + "sequence number: " + sequenceNumber);
+
                 if (repo.UpdateInboundScaleData(auditNumber, sequenceNumber, driverId, truckNumber, trailerNumber, weight, scaleDate))
                 {
                     response = Encoding.ASCII.GetBytes("F#1=INBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                    writeToLog("Inbound transaction for audit number " + auditNumber + " sequence number " + sequenceNumber + "was updated successfully");
                 }
                 else
                 {
                     response = Encoding.ASCII.GetBytes("F#1=INBOUND|N|" + DateTime.Now.ToLongTimeString());
+                    writeToLog("Inbound transaction for audit number " + auditNumber + " sequence number " + sequenceNumber + "was either already updated or there was an error updating the record.");
                 };
                 
             }
@@ -166,10 +204,12 @@ namespace ScaleIntegration_Server
                 if (repo.UpdateOutboundScaleData(auditNumber, sequenceNumber, loaderId, weight, scaleDate))
                 {
                     response = Encoding.ASCII.GetBytes("F#1=OUTBOUND|Y|" + DateTime.Now.ToLongTimeString());
+                    writeToLog("Outbound transaction for audit number " + auditNumber + " sequence number " + sequenceNumber + "was updated successfully");
                 }
                 else
                 {
                     response = Encoding.ASCII.GetBytes("F#1=OUTBOUND|N|" + DateTime.Now.ToLongTimeString());
+                    writeToLog("Outbound transaction for audit number " + auditNumber + " sequence number " + sequenceNumber + "was either already updated or there was an error updating the record.");
                 }
 
             }
@@ -177,15 +217,19 @@ namespace ScaleIntegration_Server
             {
                 Console.WriteLine("Test transaction was received");
                 response = Encoding.ASCII.GetBytes("F#1=TEST|Y|" + DateTime.Now.ToLongTimeString());
+                writeToLog("Test command was received successfully.");
             }
             else
             {
                 Console.WriteLine("We have received an invalid request");
                 response = Encoding.ASCII.GetBytes("F#1=INVALID|Y|" + DateTime.Now.ToLongTimeString());
+                writeToLog("An invalid command was received: " + text.ToString());
             }
 
             current.Send(response);
             AppendToResponseTextBox(response);
+
+            writeToLog("Response has been sent: " + Encoding.ASCII.GetString(response));
 
             _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
@@ -206,6 +250,14 @@ namespace ScaleIntegration_Server
             {
                 lstServerResponse.Items.Add(responseText);
             });
+        }
+
+        private void writeToLog(string message)
+        {
+            if (commLog == null)
+                ServiceLog.Default.Log(message);
+            else
+                commLog.Log(message);
         }
     }
 }
