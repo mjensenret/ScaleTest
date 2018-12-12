@@ -36,53 +36,53 @@ namespace Domain.Models
     {
         public int transferOrderArrivalId { get; set; }
         public object transferOrder { get; set; }
-        public int equipmentId { get; set; }
-        public decimal? scaleInQuantity { get; set; }
+        //public int equipmentId { get; set; }
+        //public decimal? scaleInQuantity { get; set; }
         public decimal? scaleInWeight { get; set; }
-        public decimal? scaleInVolume { get; set; }
-        public long? scaleInDate { get; set; }
-        public decimal? scaleOutQuantity { get; set; }
-        public decimal? scaleOutVolume { get; set; }
+        //public decimal? scaleInVolume { get; set; }
+        public string scaleInDate { get; set; }
+        //public decimal? scaleOutQuantity { get; set; }
+        //public decimal? scaleOutVolume { get; set; }
         public decimal? scaleOutWeight { get; set; }
-        public long? scaleOutDate { get; set; }
-        public decimal? netTransferQuantity { get; set; }
-        public decimal? netTransferVolume { get; set; }
+        public string scaleOutDate { get; set; }
+        //public decimal? netTransferQuantity { get; set; }
+        //public decimal? netTransferVolume { get; set; }
         public decimal? netTransferWeight { get; set; }
         public int sequenceNumber { get; set; }
-        public decimal? netTotalTransferQuantity { get; set; }
-        public decimal? netTotalTransferWeight { get; set; }
-        public decimal? netTotalTransferVolume { get; set; }
-        public object loadedEmptyStatus { get; set; }
-        public bool isVoided { get; set; }
+        //public decimal? netTotalTransferQuantity { get; set; }
+        //public decimal? netTotalTransferWeight { get; set; }
+        //public decimal? netTotalTransferVolume { get; set; }
+        //public object loadedEmptyStatus { get; set; }
+        //public bool isVoided { get; set; }
         //public long? interfaceDate { get; set; }
         //public long? inputDate { get; set; }
-        public long? modifiedDate { get; set; }
-        //public string inputBy { get; set; }
-        public string modifiedBy { get; set; }
-    }
-
-    public class TransferOrderPlanningModel
-    {
-        public int transferOrderPlanningId { get; set; }
-        public int transferOrderId { get; set; }
-        //public int equipmentTripId { get; set; }
-        //public int productId { get; set; }
-        //public int equipmentId { get; set; }
-        //public decimal? planVolume { get; set; }
-        ////public int planWeight { get; set; }
-        ////public int availableWeight { get; set; }
-        ////public double availableVolume { get; set; }
-        ////public object arrivalWeight { get; set; }
-        ////public object arrivalVolume { get; set; }
-        ////public int sequenceNumber { get; set; }
-        ////public string sealNumber { get; set; }
-        //public bool isVoided { get; set; }
-        //public bool isSelected { get; set; }
-        ////public long inputDate { get; set; }
-        //public long modifiedDate { get; set; }
+        //public long? modifiedDate { get; set; }
         //public string inputBy { get; set; }
         //public string modifiedBy { get; set; }
     }
+
+    //public class TransferOrderPlanningModel
+    //{
+    //    public int transferOrderPlanningId { get; set; }
+    //    public int transferOrderId { get; set; }
+    //    //public int equipmentTripId { get; set; }
+    //    //public int productId { get; set; }
+    //    //public int equipmentId { get; set; }
+    //    //public decimal? planVolume { get; set; }
+    //    ////public int planWeight { get; set; }
+    //    ////public int availableWeight { get; set; }
+    //    ////public double availableVolume { get; set; }
+    //    ////public object arrivalWeight { get; set; }
+    //    ////public object arrivalVolume { get; set; }
+    //    ////public int sequenceNumber { get; set; }
+    //    ////public string sealNumber { get; set; }
+    //    //public bool isVoided { get; set; }
+    //    //public bool isSelected { get; set; }
+    //    ////public long inputDate { get; set; }
+    //    //public long modifiedDate { get; set; }
+    //    //public string inputBy { get; set; }
+    //    //public string modifiedBy { get; set; }
+    //}
 
     public class TransferOrderModel
     {
@@ -121,14 +121,12 @@ namespace Domain.Models
         //public long scheduledDate { get; set; }
         //public long orderedDate { get; set; }
         //public long deliveryDate { get; set; }
-        public long? loadStartDate { get; set; }
-        public long? loadEndDate { get; set; }
+        public string loadStartDate { get; set; }
+        public string loadEndDate { get; set; }
         public bool isVoided { get; set; }
         public bool isCompleted { get; set; }
         public bool isValidated { get; set; }
         public List<TransferOrderArrivalModel> transferOrderArrivals { get; set; }
-        public List<TransferOrderPlanningModel> transferOrderPlannings { get; set; }
-        public List<object> transferOrderServices { get; set; }
         public bool isSplit
         {
             get
@@ -144,21 +142,16 @@ namespace Domain.Models
             }
             
         }
-        //public object transferOrderWeightMap { get; set; }
-        //public long inputDate { get; set; }
-        public long modifiedDate { get; set; }
-        //public string inputBy { get; set; }
-        public string modifiedBy { get; set; }
-        //public object error { get; set; }
 
 
+        private DateTime convertDateTime(long date)
+        {
+            DateTime dt = JsonConvert.DeserializeObject<DateTime>(date.ToString());
+            return dt;
+        }
     }
 
-    private DateTime convertDateTime(string date)
-    {
-        DateTime dt = JsonConvert.DeserializeObject<DateTime>(date);
-        return dt;
-    }
+
 
 
 

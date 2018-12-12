@@ -74,78 +74,31 @@ namespace Domain.Repositories
                                         weight.ToString(),
                                         scaleInDate.ToString()
                                         );
-            //var transferOrder = getTransferOrder(transferOrderId);
 
             TransferOrderModel transferOrder = svc.getTransferOrder(transferOrderId);
 
-            bool splitLoad = transferOrder.isSplit;
-
             if (transferOrder != null)
             {
-                if (transferOrder.isSplit)
+                if (svc.UpdateTransferOrder(transferOrder, "Inbound", transferOrderId, sequenceNumber, scaleInDate, null, trailerNumber, null, weight))
                 {
-                    //update the load start only if sequence = 1
+                    ServiceLog.Default.Trace("Inbound scale message for id:{0} was processed successfully.", transferOrderId.ToString());
+                    return true;
                 }
                 else
                 {
-                    //update TO and TOA
-                    svc.UpdateInboundScaleData(transferOrderId, sequenceNumber, driverId, truckNumber, trailerNumber, weight, scaleInDate);
+                    ServiceLog.Default.Trace("There was an error updating the inbound scale message, or the record already has matching values.");
+                    return false;
                 }
+                    
 
-                //    if (transferOrderArrival.scaleInWeight == null)
-                //    {
-
-                //        TransferOrder updTO = transferOrder;
-
-                //        updTO.departureEquipmentTypeId = 2;
-                //          var transferOrderArrival = getTransferOrderArrivals(transferOrderId, sequenceNumber);
-                //  updTO.departureEquipmentName = truckNumber.ToString();
-                //        if (splitLoad && sequenceNumber == 1)
-                //        {
-                //            updTO.loadStartDate = scaleInDate;
-                //        }
-                //        else if (!splitLoad)
-                //        {
-                //            updTO.loadStartDate = scaleInDate;
-                //        }
-
-                //        updTO.modifiedBy = "ScaleInProcess";
-                //        updTO.modifiedDate = DateTime.Now;
-
-                //        TransferOrderArrival updTOA = transferOrderArrival;
-
-                //        updTOA.scaleInWeight = weight;
-                //        updTOA.scaleInDate = scaleInDate;
-                //        updTOA.modifiedBy = "ScaleInProcess";
-                //        updTOA.modifiedDate = DateTime.Now;
-
-                //        try
-                //        {
-                //            db.SaveChanges();
-                //            ServiceLog.Default.Trace("Transfer order Id {0} and transfer order arrival id {1} have been successfully updated.", updTO.transferOrderId.ToString(), updTOA.transferOrderArrivalId.ToString());
-                //            return true;
-                //        }
-                //        catch (Exception e)
-                //        {
-                //            Console.WriteLine("We have a failure...");
-                //            Console.WriteLine(e.Message);
-                //            ServiceLog.Default.Log("Error occurred while attempting to update transferOrderArrivalId {0}", updTOA.transferOrderArrivalId);
-                //            ServiceLog.Default.LogError(e);
-                //            return false;
-                //        }
-                //    }
-                //    else
-                //    {
-                //        ServiceLog.Default.Trace("Transfer order id {0} with transfer order arrival Id {1} has already been updated.", transferOrder.transferOrderId.ToString(), transferOrderArrival.transferOrderArrivalId.ToString());
-                //    }
-
+ 
             }
             else
             {
                 ServiceLog.Default.Trace("Transfer order object was null for id {0}", transferOrderId.ToString());
+                return false;
             }
-
-            return false;
+            
         }
 
         public bool UpdateOutboundScaleData(int transferOrderId, int sequenceNumber, int loaderId, decimal weight, DateTime scaleOutDate)
@@ -163,104 +116,28 @@ namespace Domain.Repositories
                             scaleOutDate.ToString()
                             );
 
-            var transferOrder = getTransferOrder(transferOrderId);
-
-            bool splitLoad = isSplit(transferOrderId);
+            TransferOrderModel transferOrder = svc.getTransferOrder(transferOrderId);
 
             if (transferOrder != null)
             {
-                var transferOrderArrival = getTransferOrderArrivals(transferOrderId, sequenceNumber);
-
-                if (transferOrderArrival.scaleOutWeight == null)
+                if (svc.UpdateTransferOrder(transferOrder, "Outbound", transferOrderId, sequenceNumber, null, scaleOutDate, null, loaderId, weight))
                 {
-                    TransferOrder updTO = transferOrder;
-
-                    if (splitLoad && sequenceNumber > 1)
-                    {
-                        updTO.loadEndDate = scaleOutDate;
-                    }
-                    else if (!splitLoad)
-                    {
-                        updTO.loadEndDate = scaleOutDate;
-                    }
-
-                    updTO.transferOrderLoaderId = loaderId;
-                    updTO.modifiedBy = "ScaleOutProcess";
-                    updTO.modifiedDate = DateTime.Now;
-
-                    TransferOrderArrival updTOA = transferOrderArrival;
-                    decimal netWt = Convert.ToDecimal(updTOA.scaleInWeight) - weight;
-
-                
-                    updTOA.scaleOutWeight = weight;
-                    updTOA.netTransferWeight = Math.Abs(netWt);
-                    updTOA.scaleOutDate = scaleOutDate;
-                    updTOA.modifiedBy = "ScaleOutProcess";
-                    updTOA.modifiedDate = DateTime.Now;
-
-                    try
-                    {
-                        db.SaveChanges();
-                        ServiceLog.Default.Trace("Outbound scale data for transfer order id {0} and transfer order arrival id {1} has been successfully updated.", transferOrder.transferOrderId.ToString(), transferOrderArrival.transferOrderArrivalId.ToString());
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Unable to update scale out information");
-                        Console.WriteLine(e.Message);
-                        ServiceLog.Default.Trace("Transfer order id {0}, transfer order arrival id {1} did not save correctly", transferOrder.transferOrderId.ToString(), transferOrderArrival.transferOrderArrivalId.ToString());
-                        return false;
-                    }
+                    ServiceLog.Default.Trace("Outbound scale message for transfer order id {0} sequence {1} was processed successfully.", transferOrderId.ToString(), sequenceNumber.ToString());
+                    return true;
                 }
                 else
                 {
-                    ServiceLog.Default.Trace("Transfer order id {0}, transfer order arrival id {1} has already been updated.", transferOrder.transferOrderId.ToString(), transferOrderArrival.transferOrderArrivalId.ToString());
+                    ServiceLog.Default.Trace("There was an error updating the outbound scale message, or the record already has matching values.");
+                    return false;
                 }
+
             }
             else
             {
-                ServiceLog.Default.Trace("transferOrder was null");
+                ServiceLog.Default.Trace("Transfer order object was null for id {0}", transferOrderId.ToString());
+                return false;
             }
 
-            return false;
-        }
-
-        private TransferOrder getTransferOrder(int id)
-        {
-            var transferOrder = (from t in db.TransferOrders
-                                 where t.transferOrderId == id
-                                 where t.status == "SCHEDULED"
-                                 where !t.isCompleted
-                                 where !t.isVoided
-                                 select t);
-
-            return transferOrder.Single();
-        }
-
-        private TransferOrderArrival getTransferOrderArrivals(int transferOrderId, int sequenceNumber)
-        {
-            var transferOrderArrivals = (from toa in db.TransferOrderArrivals
-                                         where toa.transferOrderId == transferOrderId
-                                         select toa);
-            
-            if (transferOrderArrivals.Count() > 1)
-                transferOrderArrivals = transferOrderArrivals.Where(x => x.sequenceNumber == sequenceNumber);
-
-
-            return transferOrderArrivals.FirstOrDefault();
-
-        }
-
-        private bool isSplit(int transferOrderId)
-        {
-            var transferOrderArrivals = (from toa in db.TransferOrderArrivals
-                                         where toa.transferOrderId == transferOrderId
-                                         select toa);
-
-            if (transferOrderArrivals.Count() > 1)
-                return true;
-
-            return false;
         }
 
     }
