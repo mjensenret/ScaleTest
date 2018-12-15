@@ -99,6 +99,7 @@
             this.Text = "Scale Integration";
             this.ResumeLayout(false);
             this.PerformLayout();
+            this.Load += new System.EventHandler(this.frmServerForm_Load);
 
         }
 

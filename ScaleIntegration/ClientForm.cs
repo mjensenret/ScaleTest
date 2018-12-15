@@ -26,7 +26,7 @@ namespace ScaleIntegration_Client
             try
             {
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _clientSocket.BeginConnect(new IPEndPoint(IPAddress.Parse(txtServerIpAddress.Text), 9171), new AsyncCallback(ConnectCallback), null);
+                _clientSocket.BeginConnect(new IPEndPoint(IPAddress.Parse(txtServerIpAddress.Text), Convert.ToInt32(txtPortNumber.Text)), new AsyncCallback(ConnectCallback), null);
 
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace ScaleIntegration_Client
             try
             {
                 //byte[] buffer = Encoding.ASCII.GetBytes(txtCommand.Text);
-                byte[] buffer = Encoding.Default.GetBytes(txtCommand.Text);
+                byte[] buffer = Encoding.Default.GetBytes(WrapDataInProtocolEnvelope(txtCommand.Text));
                 _clientSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(SendCallback), _clientSocket);
             }
             catch (SocketException) { } //Server closed
@@ -100,6 +100,11 @@ namespace ScaleIntegration_Client
             });
         }
 
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private bool isConnected()
         {
             if(_clientSocket.Connected)
@@ -110,6 +115,13 @@ namespace ScaleIntegration_Client
             {
                 return false;
             }
+        }
+
+        private static string WrapDataInProtocolEnvelope(string command)
+        {
+            return string.IsNullOrEmpty(command)
+                ? ""
+                : $"{command}\r";
         }
     }
 }

@@ -36,6 +36,8 @@
             this.btnConnect = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lblServerResponse = new System.Windows.Forms.Label();
+            this.lblPort = new System.Windows.Forms.Label();
+            this.txtPortNumber = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lstServerResponse
@@ -43,7 +45,7 @@
             this.lstServerResponse.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstServerResponse.FormattingEnabled = true;
-            this.lstServerResponse.Location = new System.Drawing.Point(13, 134);
+            this.lstServerResponse.Location = new System.Drawing.Point(13, 184);
             this.lstServerResponse.Name = "lstServerResponse";
             this.lstServerResponse.Size = new System.Drawing.Size(297, 69);
             this.lstServerResponse.TabIndex = 0;
@@ -62,18 +64,18 @@
             // 
             this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtCommand.Location = new System.Drawing.Point(13, 70);
+            this.txtCommand.Location = new System.Drawing.Point(13, 120);
             this.txtCommand.Name = "txtCommand";
             this.txtCommand.Size = new System.Drawing.Size(297, 20);
-            this.txtCommand.TabIndex = 3;
+            this.txtCommand.TabIndex = 4;
             // 
             // btnSend
             // 
             this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSend.Location = new System.Drawing.Point(235, 96);
+            this.btnSend.Location = new System.Drawing.Point(235, 146);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(75, 23);
-            this.btnSend.TabIndex = 4;
+            this.btnSend.TabIndex = 5;
             this.btnSend.Text = "Send";
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
@@ -93,7 +95,7 @@
             this.btnConnect.Location = new System.Drawing.Point(235, 38);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(75, 23);
-            this.btnConnect.TabIndex = 2;
+            this.btnConnect.TabIndex = 3;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
@@ -101,7 +103,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 54);
+            this.label1.Location = new System.Drawing.Point(16, 104);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 13);
             this.label1.TabIndex = 7;
@@ -110,17 +112,38 @@
             // lblServerResponse
             // 
             this.lblServerResponse.AutoSize = true;
-            this.lblServerResponse.Location = new System.Drawing.Point(16, 118);
+            this.lblServerResponse.Location = new System.Drawing.Point(16, 168);
             this.lblServerResponse.Name = "lblServerResponse";
             this.lblServerResponse.Size = new System.Drawing.Size(89, 13);
             this.lblServerResponse.TabIndex = 8;
             this.lblServerResponse.Text = "Server Response";
             // 
+            // lblPort
+            // 
+            this.lblPort.AutoSize = true;
+            this.lblPort.Location = new System.Drawing.Point(13, 44);
+            this.lblPort.Name = "lblPort";
+            this.lblPort.Size = new System.Drawing.Size(66, 13);
+            this.lblPort.TabIndex = 10;
+            this.lblPort.Text = "Port Number";
+            this.lblPort.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // txtPortNumber
+            // 
+            this.txtPortNumber.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtPortNumber.Location = new System.Drawing.Point(111, 41);
+            this.txtPortNumber.Name = "txtPortNumber";
+            this.txtPortNumber.Size = new System.Drawing.Size(118, 20);
+            this.txtPortNumber.TabIndex = 2;
+            // 
             // frm920Simulation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(322, 215);
+            this.ClientSize = new System.Drawing.Size(322, 264);
+            this.Controls.Add(this.lblPort);
+            this.Controls.Add(this.txtPortNumber);
             this.Controls.Add(this.lblServerResponse);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnConnect);
@@ -146,6 +169,8 @@
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblServerResponse;
+        private System.Windows.Forms.Label lblPort;
+        private System.Windows.Forms.TextBox txtPortNumber;
     }
 }
 
