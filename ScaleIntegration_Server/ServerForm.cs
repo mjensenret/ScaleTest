@@ -22,6 +22,11 @@ namespace ScaleIntegration_Server
 {
     public partial class frmServerForm : Form
     {
+        public string ClientMessage
+        {
+            get { return this.lstClientCommand.Text; }
+            set { lstClientCommand.Items.Add(value); }
+        }
 
         private readonly IServer m_tcpServer = new Server(
             new CustomTcpListenerFactory(),
@@ -32,13 +37,6 @@ namespace ScaleIntegration_Server
                 Settings.Default.closeConnectionAfterResponse),
             Settings.Default.ListeningPort,
             Settings.Default.maxConnections);
-
-        //private Socket _serverSocket, _clientSocket;
-        //private byte[] _buffer;
-
-        private static TransferOrderRepository repo = new TransferOrderRepository();
-        // Received data string.  
-        public StringBuilder sb = new StringBuilder();
 
         public frmServerForm()
         {

@@ -9,13 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TcpServerLib.IO;
 
-namespace ScaleIntegration_Server
+namespace ServerConsole
 {
     public class ScaleProtocolHandler : ProtocolHandlerBase
     {
         private static TransferOrderRepository repo = new TransferOrderRepository();
         private static FileLog commLog { get; set; }
-        private readonly frmServerForm mainForm;
 
         public ScaleProtocolHandler()
         {
@@ -87,6 +86,7 @@ namespace ScaleIntegration_Server
 
             try
             {
+                Console.WriteLine($"Message received: {message}");
                 writeToLog($"Message received: {message}");
 
                 var fields = message.Split('|');
@@ -94,9 +94,9 @@ namespace ScaleIntegration_Server
 
                 try
                 {
-                    if(repo.TransferOrderValid(auditNumber))
+                    if (repo.TransferOrderValid(auditNumber))
                     {
-
+                        Trace.WriteLine($"Transfer order id {auditNumber} was found and is valid");
                         writeToLog($"Transfer Order Id {auditNumber} was found and is in scheduled status");
                         return $"QUERY|{ACK}|";
                     }
@@ -157,7 +157,7 @@ namespace ScaleIntegration_Server
             writeToLog($"Inbound message received for Transfer Order Id {auditNumber} and sequence number {sequenceNumber}");
             try
             {
-                if(repo.UpdateInboundScaleData(auditNumber, sequenceNumber, driverNumber, truckNumber, trailerNumber, scaleInWeight, scaleInDate))
+                if (repo.UpdateInboundScaleData(auditNumber, sequenceNumber, driverNumber, truckNumber, trailerNumber, scaleInWeight, scaleInDate))
                 {
                     writeToLog($"Inbound weight updated successfully for transfer order id {auditNumber} sequence number {sequenceNumber}");
                     return $"INBOUND|{ACK}|{DateTime.Now.ToString("MMddyy HHmmss")}";
@@ -174,7 +174,7 @@ namespace ScaleIntegration_Server
                 Trace.WriteLine(ex);
                 writeToLog($"Exception occurred while trying to parse the inbound scale message for transfer order id {auditNumber} sequence number {sequenceNumber}");
                 writeToLog(ex.Message);
-                
+
 
                 return $"INBOUND|{NAK}|{DateTime.Now.ToString("MMddyy HHmmss")}";
             }
@@ -212,7 +212,7 @@ namespace ScaleIntegration_Server
             writeToLog($"Outbound weight message received for transfer order id {auditNumber} sequence number {sequenceNumber}");
             try
             {
-                if(repo.UpdateOutboundScaleData(auditNumber,sequenceNumber,loaderId,scaleOutWeight, scaleOutDate))
+                if (repo.UpdateOutboundScaleData(auditNumber, sequenceNumber, loaderId, scaleOutWeight, scaleOutDate))
                 {
                     writeToLog($"Outbound weight updated successfully for transfer order id {auditNumber} sequence number {sequenceNumber}");
                     return $"OUTBOUND|{ACK}|{DateTime.Now.ToString("MMddyy HHmmss")}";

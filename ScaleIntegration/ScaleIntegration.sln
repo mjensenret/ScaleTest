@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpServerLib", "..\TcpServerLib\TcpServerLib.csproj", "{59D46C38-937A-4E1E-A767-9EFF00BDB674}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerConsole", "..\ServerConsole\ServerConsole.csproj", "{297E508F-A7B0-4012-BB87-06F3EB4A611D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScaleIntegrationService", "ScaleIntegrationService\ScaleIntegrationService.csproj", "{92606326-7688-4D92-8BEE-3749B6F80311}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{59D46C38-937A-4E1E-A767-9EFF00BDB674}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59D46C38-937A-4E1E-A767-9EFF00BDB674}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59D46C38-937A-4E1E-A767-9EFF00BDB674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{297E508F-A7B0-4012-BB87-06F3EB4A611D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{297E508F-A7B0-4012-BB87-06F3EB4A611D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{297E508F-A7B0-4012-BB87-06F3EB4A611D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{297E508F-A7B0-4012-BB87-06F3EB4A611D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92606326-7688-4D92-8BEE-3749B6F80311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92606326-7688-4D92-8BEE-3749B6F80311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92606326-7688-4D92-8BEE-3749B6F80311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92606326-7688-4D92-8BEE-3749B6F80311}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
